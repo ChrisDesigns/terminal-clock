@@ -1,0 +1,7 @@
+version: "3.8"
+services:
+
+  terminal-clock:
+    build: .
+    ports:
+        - '80:80'
