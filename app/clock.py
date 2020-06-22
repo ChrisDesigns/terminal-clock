@@ -1,19 +1,22 @@
-from app import app, Response
+from app import app, Response, request
 import time
 from datetime import datetime
 from app.utility import returnClearScreen, returnClock
-
+from app.timezone import processTZ, convertTZ
 
 # generator functions - a bit hacky when it comes to threading
 # goal will be to move towards something like aiohttp
-def generateClock():
+def generateClock(timezone=None, ip=None):
+    timezone = processTZ(timezone, ip)
     while True:
         yield returnClearScreen()
-        now = datetime.now()
+        now = convertTZ(datetime.now(), timezone)
         yield returnClock(str(now.hour), str(now.minute))
         # refresh every second
         time.sleep(1)
 
 @app.route('/clock')
 def clockRoute():
-    return Response(generateClock(), mimetype='text/plain')
+    tz = request.args.get('tz')
+    ip = request.environ.get('X-Real-IP', request.remote_addr)
+    return Response(generateClock(tz, ip), mimetype='text/plain')
