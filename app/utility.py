@@ -62,29 +62,44 @@ def convertTimeFormat(delta):
     total_time = delta.total_seconds()
     minutes = int((total_time % 3600) // 60)
     seconds = int((total_time % 3600) % 60 // 1)
-    return returnClock(str(minutes), str(seconds))
-
-# calculates and create the offset space needed
-def createSpace(arrayStr):
-    taken_space = len(arrayStr)
-    offset = 8
-    spaceNeeded = offset - (taken_space - 1)
-    return " " * spaceNeeded
+    return returnClock(minutes, seconds)
 
 def returnClock(firstUnit, secondUnit):
-    return r"""
+  minWithLead = "{:02d}".format(firstUnit)
+  secWithLead = "{:02d}".format(secondUnit)
+
+  leadingMin = formatASCII(int(minWithLead[0])).split('\n')
+  followingMin = formatASCII(int(minWithLead[1])).split('\n')
+  
+  leadingSec = formatASCII(int(secWithLead[0])).split('\n')
+  followingSec = formatASCII(int(secWithLead[1])).split('\n')
+
+  seperator = [".", " ", "."]
+
+  clockDisplay = r"""
         ___________________
      _.'-------------------'._
     |   ___________________   |
     |  /                   \  |
-    |  |        m:s        |  |
+    |  |                   |  |
     |  |                   |  |
     |  \___________________/  |
     `-_______________________-'
          '_'            '_'      
     """ \
-    .replace("        m", createSpace(firstUnit) + firstUnit) \
-    .replace("s        ", secondUnit + createSpace(secondUnit))
+    .split('\n')
+
+  clock = clockDisplay[4:7]
+
+  for index in range(3):
+    clockStr = clock[index]
+    clockStr = clock[index] = clockStr[:9] + leadingMin[index] + clockStr[12:]
+    clockStr = clock[index] = clockStr[:13] + followingMin[index] + clockStr[16:]
+    clockStr = clock[index] = clockStr[:17] + seperator[index] + clockStr[18:]
+    clockStr = clock[index] = clockStr[:19] + leadingSec[index] + clockStr[22:]
+    clock[index] = clockStr[:23] + followingSec[index] + clockStr[26:]
+
+  return '\n'.join(clockDisplay[:4] + clock + clockDisplay[7:])
     
 
 def returnClearScreen():
