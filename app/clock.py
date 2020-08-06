@@ -11,7 +11,7 @@ def generateClock(timezone=None, ip=None):
     while True:
         yield returnClearScreen()
         now = convertTZ(datetime.now(), timezone)
-        yield returnClock(str(now.hour), str(now.minute))
+        yield returnClock(now.hour, now.minute)
         # refresh every second
         time.sleep(1)
 
